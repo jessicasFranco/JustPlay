@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "845932592486",
+    "firebase_url": "https://justplay-c71c4.firebaseio.com",
+    "project_id": "justplay-c71c4",
+    "storage_bucket": "justplay-c71c4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:845932592486:android:344af9a0137687a2",
+        "android_client_info": {
+          "package_name": "com.example.filip.justplay"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "845932592486-ksq6oeg62c5mnj90cntplfreafuuh27q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.filip.justplay",
+            "certificate_hash": "dc36f3516a2167dec701fee0a4221a42ae4c08d9"
+          }
+        },
+        {
+          "client_id": "845932592486-vggg4cn6dtg7smvss0g3tg3s94nmhc56.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNOVGNIBQLJsN0uy3uN_OLudEXK3hEPOM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "845932592486-vggg4cn6dtg7smvss0g3tg3s94nmhc56.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

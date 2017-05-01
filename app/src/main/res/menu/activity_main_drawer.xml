@@ -22,6 +22,15 @@
                 android:id="@+id/nav_definitions"
                 android:icon="@drawable/ic_menu_share"
                 android:title="Definitions" />
+
+            <item
+                android:id="@+id/nav_location"
+                android:title="Locate Me" />
+
+            <item
+                android:id="@+id/nav_logout"
+                android:title="Log Out" />
+
         </menu>
     </item>
 
