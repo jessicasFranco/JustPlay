@@ -94,8 +94,9 @@ public class MyMusic extends Fragment {
 
                 SongScreen songScreen = new SongScreen();
                 songScreen.setArguments(bundle);
-                fragmentTransaction.replace(R.id.layoutCM, songScreen,songScreen.getTag());
-                fragmentTransaction.commit();
+                fragmentTransaction.replace(R.id.layoutCM,
+                        songScreen,
+                        songScreen.getTag()).commit();
             }
         });
     }

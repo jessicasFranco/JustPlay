@@ -1,18 +1,16 @@
-<LinearLayout
+<RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         tools:context="com.example.filip.justplay.SongScreen"
-        android:orientation="vertical"
-        android:background="@drawable/back">
-
+        android:orientation="vertical">
 
     <TextView
         android:id="@+id/titleSong"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_gravity="top"
         android:layout_marginTop="@dimen/text_margin"
         android:text="@string/song_title"
         android:textAlignment="center"
@@ -25,11 +23,11 @@
         android:id="@+id/artistSong"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_below="@id/titleSong"
         android:text="@string/artist"
         android:textAlignment="center"
         android:textColor="@color/colorPrimary"
-        android:textSize="@dimen/activityname"
+        android:textSize="@dimen/caractsongsreen"
         android:layout_margin="@dimen/text_margin"/>
 
     <TextView
@@ -37,21 +35,32 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_below="@id/artistSong"
         android:text="@string/album"
         android:textAlignment="center"
         android:textColor="@color/colorPrimary"
-        android:textSize="@dimen/activityname"
+        android:textSize="@dimen/caractsongsreen"
         android:layout_margin="@dimen/text_margin"/>
+
+    <ImageView
+        android:id="@+id/brandImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/backgroud"
+        android:layout_below="@id/albumSong"
+        android:layout_centerHorizontal="true"/>
 
     <TextView
         android:id="@+id/songDuration"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_below="@id/brandImage"
         android:text="@string/duration"
         android:textAlignment="center"
         android:textColor="@color/colortextMessages"
-        android:textSize="@dimen/activityname" />
+        android:textSize="@dimen/caractsongsreen"
+        android:layout_margin="@dimen/text_margin"/>
 
-</LinearLayout>
+</RelativeLayout>
 

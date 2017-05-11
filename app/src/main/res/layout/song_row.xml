@@ -1,40 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_margin="@dimen/activity_horizontal_margin">
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:layout_margin="@dimen/margin_text"
+    android:gravity="center_horizontal|fill_horizontal">
 
     <TextView
         android:id="@+id/titleSong"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/song_title"
         android:textSize="@dimen/songsname"
-        android:textColor="@color/colortextMessages"/>
+        android:textColor="@color/colortextMessages"
+        android:layout_marginLeft="@dimen/margin_text"
+        android:layout_marginStart="@dimen/margin_text"
+        android:gravity="start"/>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center_vertical|fill_horizontal"
+        android:layout_marginLeft="@dimen/margin_text"
+        android:layout_marginStart="@dimen/margin_text">
 
         <TextView
             android:id="@+id/artistSong"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.99"
+            android:layout_weight="1"
             android:text="@string/artist"
             android:textSize="@dimen/caractsong"
             android:textColor="@color/colorPrimary"
-            android:layout_gravity="start"/>
+            android:gravity="start"/>
 
         <TextView
             android:id="@+id/songDuration"
-            android:layout_width="107dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/duration"
             android:textSize="@dimen/caractsong"
             android:textColor="@color/colorPrimary"
-            android:layout_gravity="center"/>
+            android:gravity="end"
+            android:layout_gravity="end"/>
     </LinearLayout>
 
 </LinearLayout>

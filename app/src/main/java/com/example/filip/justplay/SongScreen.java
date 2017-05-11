@@ -27,9 +27,20 @@ public class SongScreen extends Fragment {
         TextView artistSong = (TextView) view.findViewById(R.id.artistSong);
         TextView songDuration = (TextView) view.findViewById(R.id.songDuration);
 
+        // Text Views of Playbar Fragment
+        TextView song = (TextView) getActivity().findViewById(R.id.song);
+        TextView duration = (TextView) getActivity().findViewById(R.id.songDuration);
+
+        // Set the text to all textViews in SongScreen Fragment
         titleSong.setText(songTitle);
         artistSong.setText(songArtist);
         songDuration.setText(durationSong);
+
+        //Set the values to the textViews in Playbar Fragment;
+        song.setText(songTitle);
+        duration.setText(durationSong);
+
+
 
         return view;
     }
