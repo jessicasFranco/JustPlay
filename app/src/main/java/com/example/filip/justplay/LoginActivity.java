@@ -1,6 +1,7 @@
 package com.example.filip.justplay;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -34,6 +35,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.MessageDigest;
@@ -48,10 +51,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private SignInButton signInButton;
 
     private CallbackManager callbackManager;
-    private AccessTokenTracker accessTokenTracker;
-    private ProfileTracker profileTracker;
+
 
     public static final int SIGN_IN_CODE = 777;
+
+    private SharedPreferences sharedPreferences;
 
 
     @Override
@@ -59,6 +63,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_login);
+
+        //Hash key
         try {
             PackageInfo info = getPackageManager().getPackageInfo(
                     "com.example.filip.justplay",
@@ -95,7 +101,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         //Facebook Login
         callbackManager = CallbackManager.Factory.create();
-        accessTokenTracker = new AccessTokenTracker() {
+        LoginButton loginButton = (LoginButton)findViewById(R.id.login_button);
+       /* accessTokenTracker = new AccessTokenTracker() {
             @Override
             protected void onCurrentAccessTokenChanged(AccessToken oldToken, AccessToken newToken) {
             }
@@ -108,28 +115,61 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         };
         accessTokenTracker.startTracking();
         profileTracker.startTracking();
-
-        LoginButton loginButton = (LoginButton)findViewById(R.id.login_button);
-        FacebookCallback<LoginResult> callback = new FacebookCallback<LoginResult>() {
+*/
+        //Read Permissions
+        loginButton.setReadPermissions(Arrays.asList("public_profile","email"));
+        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Profile profile = Profile.getCurrentProfile();
-                nextActivity(profile);
+                GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+
+                        try{
+                            String name = object.getString("name");
+                            String email = object.getString("email");
+
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("name",name);
+                            editor.putString("email",email);
+                            editor.commit();
+
+                        } catch (JSONException e){
+                            e.printStackTrace();
+                        }
+                        getFacebookDetails();
+                    }
+
+                });
+
+                Bundle parameters = new Bundle();
+                parameters.putString("fields", "id, name, email");
+                request.setParameters(parameters);
+                request.executeAsync();
 
             }
 
+
             @Override
             public void onCancel() {
+                Log.v("LoginActivity", "cancel");
 
             }
 
             @Override
             public void onError(FacebookException error) {
-
+                Log.v("LoginActivity", "error");
             }
-        };
-        loginButton.setReadPermissions("user_friends");
-        loginButton.registerCallback(callbackManager, callback);
+
+        });
+
+    }
+    public void getFacebookDetails()
+    {
+        Intent intent = new Intent(this,MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     @Override
@@ -142,7 +182,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         }
         else{
             //Facebook login
-            callbackManager.onActivityResult(requestCode, resultCode, data);
+          callbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
 

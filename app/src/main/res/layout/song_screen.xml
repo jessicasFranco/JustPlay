@@ -1,0 +1,57 @@
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.example.filip.justplay.SongScreen"
+        android:orientation="vertical"
+        android:background="@drawable/back">
+
+
+    <TextView
+        android:id="@+id/titleSong"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/text_margin"
+        android:text="@string/song_title"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/activityname"
+        android:textStyle="bold"
+        android:layout_margin="@dimen/text_margin"/>
+
+    <TextView
+        android:id="@+id/artistSong"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/artist"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/activityname"
+        android:layout_margin="@dimen/text_margin"/>
+
+    <TextView
+        android:id="@+id/albumSong"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/album"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/activityname"
+        android:layout_margin="@dimen/text_margin"/>
+
+    <TextView
+        android:id="@+id/songDuration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/duration"
+        android:textAlignment="center"
+        android:textColor="@color/colortextMessages"
+        android:textSize="@dimen/activityname" />
+
+</LinearLayout>
+

@@ -1,53 +1,54 @@
 package com.example.filip.justplay;
 
-        import android.app.Activity;
-        import android.content.Intent;
-        import android.content.pm.PackageInfo;
-        import android.content.pm.PackageManager;
-        import android.graphics.Bitmap;
-        import android.graphics.BitmapFactory;
-        import android.net.Uri;
-        import android.os.AsyncTask;
-        import android.os.Bundle;
-        import android.os.Debug;
-        import android.support.annotation.NonNull;
-        import android.support.design.widget.NavigationView;
-        import android.support.v4.view.GravityCompat;
-        import android.support.v4.widget.DrawerLayout;
-        import android.support.v7.app.ActionBarDrawerToggle;
-        import android.support.v7.app.AppCompatActivity;
-        import android.support.v7.widget.Toolbar;
-        import android.util.Base64;
-        import android.util.Log;
-        import android.view.Menu;
-        import android.view.MenuItem;
-        import android.view.View;
-        import android.widget.ImageView;
-        import android.widget.TextView;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.MediaController;
+import android.widget.TextView;
 
-        import com.bumptech.glide.Glide;
-        import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-        import com.bumptech.glide.request.target.Target;
-        import com.facebook.FacebookCallback;
-        import com.facebook.Profile;
-        import com.facebook.login.LoginManager;
-        import com.google.android.gms.auth.api.Auth;
-        import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-        import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-        import com.google.android.gms.auth.api.signin.GoogleSignInResult;
-        import com.google.android.gms.common.ConnectionResult;
-        import com.google.android.gms.common.api.GoogleApiClient;
-        import com.google.android.gms.common.api.OptionalPendingResult;
-        import com.google.android.gms.common.api.ResultCallback;
+import com.bumptech.glide.Glide;
+import com.facebook.login.LoginManager;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.OptionalPendingResult;
+import com.google.android.gms.common.api.ResultCallback;
 
-        import java.io.Console;
-        import java.io.InputStream;
-        import java.security.MessageDigest;
-        import java.security.NoSuchAlgorithmException;
-        import java.security.Signature;
+import android.widget.MediaController.MediaPlayerControl;
+
+import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener  {
+        implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener, MediaPlayerControl {
 
     //Variavel Local
     Intent _serviceIntent;
@@ -64,14 +65,22 @@ public class MainActivity extends AppCompatActivity
 
     private Activity mainActivity = this;
 
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        contextOfApplication = getApplicationContext();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -95,8 +104,9 @@ public class MainActivity extends AppCompatActivity
             }
 
         };
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -110,16 +120,18 @@ public class MainActivity extends AppCompatActivity
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
-       /* Bundle inBundle = getIntent().getExtras();
+        Bundle inBundle = getIntent().getExtras();
         if (inBundle != null) {
             String name = inBundle.getString("name");
-            String imageUrl = inBundle.getString("imageUrl");
+            //String imageUrl = inBundle.getString("imageUrl");
 
             //Putting image and name in the User
             TextView nameTextView = (TextView) findViewById(R.id.nameTextView);
             nameTextView.setText(name);
-            new MainActivity.DownloadImage((ImageView) findViewById(R.id.photoImageView)).execute(imageUrl);
-        }*/
+           // new MainActivity.DownloadImage((ImageView) findViewById(R.id.photoImageView)).execute(imageUrl);
+        }
+
+
     }
 
     @Override
@@ -136,6 +148,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         return true;
     }
 
@@ -156,24 +169,30 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    //Navegation of Siide Bar Menu
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        if (id == R.id.nav_myMusic) {
-            // Handle the camera action
-        } else if (id == R.id.nav_exploreMusic) {
+        if (id == R.id.nav_mainPage) {
+            startActivity(new Intent(MainActivity.this,MainActivity.class));
 
-        } else if (id == R.id.nav_playlist) {
+        } else if (id == R.id.nav_MyMusic) {
+            MyMusic myMusic = new MyMusic();
+            FragmentManager manager = getSupportFragmentManager();
+            manager.beginTransaction().replace(
+                    R.id.layoutCM,
+                    myMusic,
+                    myMusic.getTag()).commit();
+
+        } else if (id == R.id.nav_favorites) {
 
         } else if (id == R.id.nav_definitions) {
 
-        } else if (id == R.id.nav_location){
-            _serviceIntent = new Intent(this, SensorService.class);
-
-        }else if (id == R.id.nav_logout){
+        } else if (id == R.id.nav_logout){
             LoginManager.getInstance().logOut();
             startActivity(new Intent(MainActivity.this,LoginActivity.class));
             MainActivity.this.finish();
@@ -186,7 +205,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+    public void onConnectionFailed( ConnectionResult connectionResult) {
 
     }
 
@@ -227,6 +246,63 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);*/
     }
 
+    //Metheds of Control Player
+    @Override
+    public void start() {
+
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public int getDuration() {
+        return 0;
+    }
+
+    @Override
+    public int getCurrentPosition() {
+        return 0;
+    }
+
+    @Override
+    public void seekTo(int pos) {
+
+    }
+
+    @Override
+    public boolean isPlaying() {
+        return false;
+    }
+
+    @Override
+    public int getBufferPercentage() {
+        return 0;
+    }
+
+    @Override
+    public boolean canPause() {
+        return false;
+    }
+
+    @Override
+    public boolean canSeekBackward() {
+        return false;
+    }
+
+    @Override
+    public boolean canSeekForward() {
+        return false;
+    }
+
+    @Override
+    public int getAudioSessionId() {
+        return 0;
+    }
+
+
 // classe to get the image of the user
 
     public class DownloadImage extends AsyncTask<String, Void, Bitmap> {
@@ -253,5 +329,13 @@ public class MainActivity extends AppCompatActivity
             bmImage.setImageBitmap(result);
         }
     }
+
+    // a static variable to get a reference of our application context
+    public static Context contextOfApplication;
+    public static Context getContextOfApplication()
+    {
+        return contextOfApplication;
+    }
+
 
 }

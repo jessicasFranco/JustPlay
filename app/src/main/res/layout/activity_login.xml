@@ -16,21 +16,31 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="4dp"
         android:paddingTop="12dp"
-        android:paddingBottom="12dp"/>
+        android:paddingBottom="12dp"
+        android:layout_below="@+id/imageView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="28dp" />
 
     <com.facebook.login.widget.LoginButton
         android:id="@+id/login_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginTop="30dp"
-        android:layout_below="@id/signInButton"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="4dp"
         android:paddingTop="12dp"
-        android:paddingBottom="12dp"/>
+        android:paddingBottom="12dp"
+        android:layout_alignTop="@+id/signInButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="103dp" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        app:srcCompat="@drawable/login"
+        android:contentDescription="Login"
+        android:layout_centerHorizontal="true"/>
 
 </RelativeLayout>

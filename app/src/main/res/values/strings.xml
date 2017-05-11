@@ -8,6 +8,28 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
-    
+
     <string name="facebook_app_id">286026141855698</string>
+    <string name="song_title">Song title</string>
+    <string name="artist">Artista</string>
+    <string name="duration">Duração</string>
+    <string name="album">Albúm</string>
+    <string name="genre">Género</string>
+
+    <string name="activityname">Just Play</string>
+
+    <!-- PlayBar names -->
+    <string name="play">Play</string>
+    <string name="rewind">Rewind</string>
+    <string name="favorito">Favorito</string>
+    <string name="forward">Forward</string>
+    <string name="block">Block</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="android_studio">Android Studio</string>
+    <string name="android_studio_android_com">android.studio@android.com</string>
+
+
+
 </resources>
