@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringDef;
 import android.support.v7.app.AppCompatActivity;
@@ -47,38 +48,16 @@ import static com.example.filip.justplay.R.id.nameTextView;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
-    private GoogleApiClient googleApiClient;
-    private SignInButton signInButton;
-
-    private CallbackManager callbackManager;
-
-
     public static final int SIGN_IN_CODE = 777;
 
-    private SharedPreferences sharedPreferences;
-
+    private GoogleApiClient googleApiClient;
+    private SignInButton signInButton;
+    private CallbackManager callbackManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_login);
-
-        //Hash key
-        try {
-            PackageInfo info = getPackageManager().getPackageInfo(
-                    "com.example.filip.justplay",
-                    PackageManager.GET_SIGNATURES);
-            for (Signature signature : info.signatures) {
-                MessageDigest md = MessageDigest.getInstance("SHA");
-                md.update(signature.toByteArray());
-                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-
-        } catch (NoSuchAlgorithmException e) {
-
-        }
 
         //Google Login
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -102,74 +81,25 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         //Facebook Login
         callbackManager = CallbackManager.Factory.create();
         LoginButton loginButton = (LoginButton)findViewById(R.id.login_button);
-       /* accessTokenTracker = new AccessTokenTracker() {
-            @Override
-            protected void onCurrentAccessTokenChanged(AccessToken oldToken, AccessToken newToken) {
-            }
-        };
-        profileTracker = new ProfileTracker() {
-            @Override
-            protected void onCurrentProfileChanged(Profile oldProfile, Profile newProfile) {
-                nextActivity(newProfile);
-            }
-        };
-        accessTokenTracker.startTracking();
-        profileTracker.startTracking();
-*/
-        //Read Permissions
         loginButton.setReadPermissions(Arrays.asList("public_profile","email"));
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
-
-                    @Override
-                    public void onCompleted(JSONObject object, GraphResponse response) {
-
-                        try{
-                            String name = object.getString("name");
-                            String email = object.getString("email");
-
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putString("name",name);
-                            editor.putString("email",email);
-                            editor.commit();
-
-                        } catch (JSONException e){
-                            e.printStackTrace();
-                        }
-                        getFacebookDetails();
-                    }
-
-                });
-
-                Bundle parameters = new Bundle();
-                parameters.putString("fields", "id, name, email");
-                request.setParameters(parameters);
-                request.executeAsync();
-
+                Log.d("LoginActivity", "onSuccess");
+                goMainScreen();
             }
-
-
             @Override
             public void onCancel() {
-                Log.v("LoginActivity", "cancel");
-
+                Log.v("LoginActivity", "onCancel");
+                Toast.makeText(getApplicationContext(), "Login Canceled", Toast.LENGTH_SHORT).show();
             }
-
             @Override
-            public void onError(FacebookException error) {
-                Log.v("LoginActivity", "error");
+            public void onError(FacebookException error){
+                Log.e("LoginActivity", "onError");
+                Toast.makeText(getApplicationContext(), "Error occurred", Toast.LENGTH_SHORT).show();
             }
 
         });
-
-    }
-    public void getFacebookDetails()
-    {
-        Intent intent = new Intent(this,MainActivity.class);
-        startActivity(intent);
-        finish();
     }
 
     @Override
@@ -181,8 +111,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             handleSignInResult(result);
         }
         else{
-            //Facebook login
-          callbackManager.onActivityResult(requestCode, resultCode, data);
+            callbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -195,24 +124,14 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         }
     }
 
-    private void nextActivity(Profile profile){
-        if(profile != null){
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            intent.putExtra("name", profile.getName());
-            intent.putExtra("imageUrl", profile.getProfilePictureUri(200,200).toString());
-            startActivity(intent);
-        }
-    }
-
     private void goMainScreen() {
         Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+        Log.v("LoginActivity", "onConnectionFailed");
     }
-
 }

@@ -90,7 +90,7 @@ public class MyMusic extends Fragment {
                 passingToScreen(songTitle,songArtist,durationSong,songAlbum);
                 //Path have the path of the song
                 String path = currentSong.getPathSong();
-                ((MainActivity)getActivity()).playerstart(path ,currentSong);
+                ((MainActivity)getActivity()).playerStart(path ,currentSong);
 
 
                 
@@ -172,7 +172,7 @@ public class MyMusic extends Fragment {
             Long duraction = next.getDuration();
             String album = next.getAlbum();
             passingToScreen(title, artist, duraction.toString(),album);
-            ((MainActivity)getActivity()).playerstart(nextSong, next);
+            ((MainActivity)getActivity()).playerStart(nextSong, next);
 
         }else{
             String nextSong = songList.get(position).getPathSong();
@@ -182,7 +182,7 @@ public class MyMusic extends Fragment {
             Long duraction = next.getDuration();
             String album = next.getAlbum();
             passingToScreen(title, artist, duraction.toString(),album);
-            ((MainActivity)getActivity()).playerstart(nextSong, next);
+            ((MainActivity)getActivity()).playerStart(nextSong, next);
         }
 
     }
@@ -198,7 +198,7 @@ public class MyMusic extends Fragment {
             Long duraction = previous.getDuration();
             String album = previous.getAlbum();
             passingToScreen(title, artist, duraction.toString(),album);
-            ((MainActivity)getActivity()).playerstart(previousSong, previous);
+            ((MainActivity)getActivity()).playerStart(previousSong, previous);
 
         }else{
             String previousSong = songList.get(position).getPathSong();
@@ -208,7 +208,7 @@ public class MyMusic extends Fragment {
             Long duraction = previous.getDuration();
             String album = previous.getAlbum();
             passingToScreen(title, artist, duraction.toString(),album);
-            ((MainActivity)getActivity()).playerstart(previousSong, previous);
+            ((MainActivity)getActivity()).playerStart(previousSong, previous);
         }
 
     }

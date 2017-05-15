@@ -31,7 +31,13 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.filip.justplay.Fragments.MyMusic;
 import com.example.filip.justplay.Utility.Utility;
+import com.facebook.AccessToken;
+import com.facebook.FacebookCallback;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.Profile;
 import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -41,13 +47,20 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import static android.R.attr.progress;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener {
 
-    //Variavel Local
-    Intent _serviceIntent;
+    //Static variable to get a reference of our application context
+    public static Context contextOfApplication;
+    public static Context getContextOfApplication() {
+        return contextOfApplication;
+    }
+
 
     //User Information
     private ImageView photoImageView;
@@ -69,7 +82,6 @@ public class MainActivity extends AppCompatActivity
     public ImageView block;
     public TextView currentTime, songDuration, song;
 
-
     private SeekBar seekbar;
     Runnable runnable;
 
@@ -88,11 +100,20 @@ public class MainActivity extends AppCompatActivity
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Silent Log in
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -126,28 +147,6 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        //Silent Log in
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
-
-        googleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this, this)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
-
-        Bundle inBundle = getIntent().getExtras();
-        if (inBundle != null) {
-            String name = inBundle.getString("name");
-            //String imageUrl = inBundle.getString("imageUrl");
-
-            //Putting image and name in the User
-            TextView nameTextView = (TextView) findViewById(R.id.nameTextView);
-            nameTextView.setText(name);
-            // new MainActivity.DownloadImage((ImageView) findViewById(R.id.photoImageView)).execute(imageUrl);
-        }
-
     }
 
     @Override
@@ -185,8 +184,7 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    //Navegation of Siide Bar Menu
-
+    //Navigation of Side Bar Menu
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -209,10 +207,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_definitions) {
 
         } else if (id == R.id.nav_logout) {
-            LoginManager.getInstance().logOut();
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
-            MainActivity.this.finish();
-
+            logout();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -220,30 +215,53 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    private void logout(){
+        LoginManager.getInstance().logOut();
+        goLogInScreen();
+    }
 
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.v("LoginActivity", "onConnectionFailed");
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
+        if(AccessToken.getCurrentAccessToken() == null){
+            checkLoginWithGoogle();
+        }
+        else{
+            checkLoginWithFacebook();
+        }
+    }
+
+    private void checkLoginWithGoogle(){
         OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(googleApiClient);
         if (opr.isDone()) {
             GoogleSignInResult result = opr.get();
-            handleSignInResult(result);
-        } else {
+            handleGoogleSignInResult(result);
+        }
+        else {
             opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
                 @Override
                 public void onResult(@NonNull GoogleSignInResult googleSignInResult) {
-                    handleSignInResult(googleSignInResult);
+                    handleGoogleSignInResult(googleSignInResult);
                 }
             });
         }
     }
 
-    private void handleSignInResult(GoogleSignInResult result) {
+    private void checkLoginWithFacebook(){
+        Profile user = Profile.getCurrentProfile();
+        if(user != null){
+            nameText = user.getName();
+            photoUri = user.getProfilePictureUri(200,200);
+        }
+    }
+
+    private void handleGoogleSignInResult(GoogleSignInResult result) {
         if (result.isSuccess()) {
             GoogleSignInAccount account = result.getSignInAccount();
             nameText = account.getDisplayName();
@@ -254,23 +272,15 @@ public class MainActivity extends AppCompatActivity
         } else {
             goLogInScreen();
         }
-
     }
 
     private void goLogInScreen() {
-        /*Intent intent = new Intent(this, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);*/
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
-    // a static variable to get a reference of our application context
-    public static Context contextOfApplication;
-
-    public static Context getContextOfApplication() {
-        return contextOfApplication;
-    }
-
-    public void playerstart(final String path, final Song currentSong) {
+    public void playerStart(final String path, final Song currentSong) {
 
         //all the buttons/images
         play = (ImageView) findViewById(R.id.play);
@@ -365,22 +375,21 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-        public void playCycle(){
-            seekbar.setProgress(mediaPlayer.getCurrentPosition());
-            if(mediaPlayer.isPlaying()){
-                runnable = new Runnable(){
-                    @Override
-                    public void run() {
-                        playCycle();
-                    }
-                };
-                myHandler.postDelayed(runnable, 1000);
-            }
+    public void playCycle(){
+        seekbar.setProgress(mediaPlayer.getCurrentPosition());
+        if(mediaPlayer.isPlaying()){
+            runnable = new Runnable(){
+                @Override
+                public void run() {
+                    playCycle();
+                }
+            };
+            myHandler.postDelayed(runnable, 1000);
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
     }
-
 }
