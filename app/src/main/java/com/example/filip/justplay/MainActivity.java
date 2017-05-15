@@ -4,11 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -19,15 +18,19 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
+import android.app.Fragment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.MediaController.MediaPlayerControl;
+import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.filip.justplay.Fragments.MyMusic;
+import com.example.filip.justplay.Utility.Utility;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -38,10 +41,10 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 
-import java.io.InputStream;
+import static android.R.attr.progress;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener, MediaPlayerControl {
+        implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener {
 
     //Variavel Local
     Intent _serviceIntent;
@@ -58,17 +61,38 @@ public class MainActivity extends AppCompatActivity
 
     private Activity mainActivity = this;
 
+    //Player
+    public ImageView play;
+    public ImageView forward;
+    public ImageView rewind;
+    public ImageView favorite;
+    public ImageView block;
+    public TextView currentTime, songDuration, song;
+
+
+    private SeekBar seekbar;
+    Runnable runnable;
+
+    private MediaPlayer mediaPlayer;
+
+    private double startTime = 0;
+    private double finalTime = 0;
+
+    private Handler myHandler = new Handler();
+    private int forwardTime = 5000;
+    private int backwardTime = 5000;
+
+    public static int oneTimeOnly = 0;
+
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
-
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -77,7 +101,7 @@ public class MainActivity extends AppCompatActivity
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close){
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
 
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
@@ -88,7 +112,7 @@ public class MainActivity extends AppCompatActivity
             public void onDrawerOpened(View view) {
                 super.onDrawerOpened(view);
                 photoImageView = (ImageView) findViewById(R.id.photoImageView);
-                nameTextView = ( TextView) findViewById(R.id.nameTextView);
+                nameTextView = (TextView) findViewById(R.id.nameTextView);
                 emailTextView = (TextView) findViewById(R.id.emailTextView);
 
                 nameTextView.setText(nameText);
@@ -121,9 +145,8 @@ public class MainActivity extends AppCompatActivity
             //Putting image and name in the User
             TextView nameTextView = (TextView) findViewById(R.id.nameTextView);
             nameTextView.setText(name);
-           // new MainActivity.DownloadImage((ImageView) findViewById(R.id.photoImageView)).execute(imageUrl);
+            // new MainActivity.DownloadImage((ImageView) findViewById(R.id.photoImageView)).execute(imageUrl);
         }
-
 
     }
 
@@ -171,7 +194,7 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         if (id == R.id.nav_mainPage) {
-            startActivity(new Intent(MainActivity.this,MainActivity.class));
+            startActivity(new Intent(MainActivity.this, MainActivity.class));
 
         } else if (id == R.id.nav_MyMusic) {
             MyMusic myMusic = new MyMusic();
@@ -185,9 +208,9 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_definitions) {
 
-        } else if (id == R.id.nav_logout){
+        } else if (id == R.id.nav_logout) {
             LoginManager.getInstance().logOut();
-            startActivity(new Intent(MainActivity.this,LoginActivity.class));
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
             MainActivity.this.finish();
 
         }
@@ -198,7 +221,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onConnectionFailed( ConnectionResult connectionResult) {
+    public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
 
@@ -219,6 +242,7 @@ public class MainActivity extends AppCompatActivity
             });
         }
     }
+
     private void handleSignInResult(GoogleSignInResult result) {
         if (result.isSuccess()) {
             GoogleSignInAccount account = result.getSignInAccount();
@@ -239,96 +263,124 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);*/
     }
 
-    //Metheds of Control Player
-    @Override
-    public void start() {
-
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public int getDuration() {
-        return 0;
-    }
-
-    @Override
-    public int getCurrentPosition() {
-        return 0;
-    }
-
-    @Override
-    public void seekTo(int pos) {
-
-    }
-
-    @Override
-    public boolean isPlaying() {
-        return false;
-    }
-
-    @Override
-    public int getBufferPercentage() {
-        return 0;
-    }
-
-    @Override
-    public boolean canPause() {
-        return false;
-    }
-
-    @Override
-    public boolean canSeekBackward() {
-        return false;
-    }
-
-    @Override
-    public boolean canSeekForward() {
-        return false;
-    }
-
-    @Override
-    public int getAudioSessionId() {
-        return 0;
-    }
-
-
-// classe to get the image of the user
-
-    public class DownloadImage extends AsyncTask<String, Void, Bitmap> {
-        ImageView bmImage;
-
-        public DownloadImage(ImageView bmImage) {
-            this.bmImage = bmImage;
-        }
-
-        protected Bitmap doInBackground(String... urls) {
-            String urldisplay = urls[0];
-            Bitmap mIcon11 = null;
-            try {
-                InputStream in = new java.net.URL(urldisplay).openStream();
-                mIcon11 = BitmapFactory.decodeStream(in);
-            } catch (Exception e) {
-                Log.e("Error", e.getMessage());
-                e.printStackTrace();
-            }
-            return mIcon11;
-        }
-
-        protected void onPostExecute(Bitmap result) {
-            bmImage.setImageBitmap(result);
-        }
-    }
-
     // a static variable to get a reference of our application context
     public static Context contextOfApplication;
-    public static Context getContextOfApplication()
-    {
+
+    public static Context getContextOfApplication() {
         return contextOfApplication;
     }
 
+    public void playerstart(final String path, final Song currentSong) {
+
+        //all the buttons/images
+        play = (ImageView) findViewById(R.id.play);
+        forward = (ImageView) findViewById(R.id.forward);
+        rewind = (ImageView) findViewById(R.id.rewind);
+
+        //Bottom with name of music (Playbar textview)
+        TextView durationTime = (TextView) findViewById(R.id.songDuration);
+        final TextView currentTime = (TextView) findViewById(R.id.currentTime);
+
+        seekbar = (SeekBar) findViewById(R.id.seekbar);
+        //seekbar.setMax(mediaPlayer.getDuration());
+        currentTime.setText("" + Utility.convertDuration(progress) + "");
+
+        mediaPlayer = MediaPlayer.create(getApplicationContext(), Uri.parse(path));
+
+
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                seekbar.setProgress(0);
+                seekbar.setMax(mediaPlayer.getDuration());
+                playCycle();
+                mediaPlayer.start();
+                play.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause));
+                Toast.makeText(getApplicationContext(), "Playing", Toast.LENGTH_SHORT).show();
+
+                play.setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (mediaPlayer != null) {
+                                    if (mediaPlayer.isPlaying()) {
+                                        mediaPlayer.pause();
+                                        Toast.makeText(getApplicationContext(), "Pausing", Toast.LENGTH_SHORT).show();
+                                        play.setImageDrawable(getResources().getDrawable(R.drawable.ic_play));
+
+                                    } else {
+                                        mediaPlayer.start();
+                                        Toast.makeText(getApplicationContext(), "Playing", Toast.LENGTH_SHORT).show();
+                                        play.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause));
+
+                                    }
+                                }}});
+                forward.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(mediaPlayer.isPlaying()){
+                            mediaPlayer.stop();
+                            MyMusic myMusic = new MyMusic();
+                            myMusic.getNext(currentSong);
+                            //MyMusic myMusic = (MyMusic) getSupportFragmentManager().findFragmentById(R.id.my_music);
+                            //myMusic.getNext();
+                        }
+
+                    }
+                });
+
+                rewind.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        MyMusic myMusic = (MyMusic) getSupportFragmentManager().findFragmentById(R.id.my_music);
+                        myMusic.getPrevious(currentSong);
+                    }
+                });
+            }
+
+        });
+
+        seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int value_progress = progress;
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                //TODO tanto o current esta a dar valores estranhos e a seekbar nao esta a ter o progresso
+                  currentTime.setText("" + Utility.convertDuration(value_progress) + "");
+                  seekbar.setProgress(progress);
+                if (fromUser) {
+                    mediaPlayer.seekTo(progress);
+                    currentTime.setText("" + Utility.convertDuration(value_progress)+ "");
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+    }
+
+        public void playCycle(){
+            seekbar.setProgress(mediaPlayer.getCurrentPosition());
+            if(mediaPlayer.isPlaying()){
+                runnable = new Runnable(){
+                    @Override
+                    public void run() {
+                        playCycle();
+                    }
+                };
+                myHandler.postDelayed(runnable, 1000);
+            }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
 
 }

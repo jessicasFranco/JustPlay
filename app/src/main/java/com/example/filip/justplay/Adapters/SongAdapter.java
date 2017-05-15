@@ -1,4 +1,4 @@
-package com.example.filip.justplay;
+package com.example.filip.justplay.Adapters;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,15 +9,19 @@ import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.filip.justplay.R;
+import com.example.filip.justplay.Song;
+import com.example.filip.justplay.Utility.Utility;
+
 
 public class SongAdapter extends BaseAdapter{
 
     private ArrayList<Song> songs;
-    private LayoutInflater songInf;
+    private LayoutInflater songInflater;
 
-    public SongAdapter(Context c, ArrayList<Song> theSongs){
-        songs=theSongs;
-        songInf=LayoutInflater.from(c);
+    public SongAdapter(Context c, ArrayList<Song> allSongs){
+        songs=allSongs;
+        songInflater=LayoutInflater.from(c);
     }
 
 
@@ -40,7 +44,7 @@ public class SongAdapter extends BaseAdapter{
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         //map to song layout
-        LinearLayout songLay = (LinearLayout)songInf.inflate
+        LinearLayout songLay = (LinearLayout)songInflater.inflate
                 (R.layout.song_row, parent, false);
         //get title and artist views
         TextView songTitle = (TextView)songLay.findViewById(R.id.titleSong);
@@ -53,18 +57,12 @@ public class SongAdapter extends BaseAdapter{
         songTitle.setText(currSong.getTitle());
         songArtist.setText(currSong.getArtist());
         //get duration and convert
-        String duration = getTimeString(currSong.getDuration());
+        String duration = Utility.convertDuration(currSong.getDuration());
         songDuration.setText(duration);
 
         //set position as tag
         songLay.setTag(position);
         return songLay;
-    }
-
-    public static String getTimeString(long duration) {
-        int minutes = (int) Math.floor(duration / 1000 / 60);
-        int seconds = (int) ((duration / 1000) - (minutes * 60));
-        return minutes + ":" + String.format("%02d", seconds);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.example.filip.justplay;
+package com.example.filip.justplay.Fragments;
 
 import android.Manifest;
 import android.content.ContentResolver;
@@ -17,14 +17,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.example.filip.justplay.Adapters.SongAdapter;
+import com.example.filip.justplay.MainActivity;
+import com.example.filip.justplay.R;
+import com.example.filip.justplay.Song;
 
 import java.util.ArrayList;
 
-import static android.R.id.message;
 import static com.example.filip.justplay.MainActivity.getContextOfApplication;
 
 public class MyMusic extends Fragment {
@@ -33,6 +35,9 @@ public class MyMusic extends Fragment {
 
     ArrayList<Song> songList;
     ListView songView;
+    String songTitle, songArtist, durationSong, songAlbum;
+    Song currentSong;
+    int position;
 
     public MyMusic() {
         // Required empty public constructor
@@ -63,12 +68,12 @@ public class MyMusic extends Fragment {
         return view;
 
     }
+
     public void accessfiles(){
 
         songList = new ArrayList<Song>();
 
-        getMusic();
-
+        Cursor song = getMusic();
         SongAdapter songAdt = new SongAdapter(this.getContext(), songList);
         songView.setAdapter(songAdt);
 
@@ -77,54 +82,65 @@ public class MyMusic extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                //Get the song by the position of it is display
-                //String song = String.valueOf(parent.getItemAtPosition(position));
-
                 String songTitle = ((TextView) view.findViewById(R.id.titleSong)).getText().toString();
                 String songArtist = ((TextView) view.findViewById(R.id.artistSong)).getText().toString();
                 String durationSong = ((TextView) view.findViewById(R.id.songDuration)).getText().toString();
+                 Song currentSong = songList.get(position);
+                String songAlbum = currentSong.getAlbum();
+                passingToScreen(songTitle,songArtist,durationSong,songAlbum);
+                //Path have the path of the song
+                String path = currentSong.getPathSong();
+                ((MainActivity)getActivity()).playerstart(path ,currentSong);
 
-                Bundle bundle = new Bundle();
-                bundle.putString("songTitle", songTitle);
-                bundle.putString("songArtist", songArtist);
-                bundle.putString("durationSong", durationSong);
 
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                
+    }});
+    }
+    private void passingToScreen(String songTitle, String songArtist, String durationSong, String songAlbum) {
+        Bundle bundle = new Bundle();
+        bundle.putString("songTitle", songTitle);
+        bundle.putString("songArtist", songArtist);
+        bundle.putString("durationSong", durationSong);
+        bundle.putString("songAlbum", songAlbum);
 
-                SongScreen songScreen = new SongScreen();
-                songScreen.setArguments(bundle);
-                fragmentTransaction.replace(R.id.layoutCM,
-                        songScreen,
-                        songScreen.getTag()).commit();
-            }
-        });
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        SongScreen songScreen = new SongScreen();
+        songScreen.setArguments(bundle);
+        fragmentTransaction.replace(R.id.layoutCM,
+                songScreen,
+                songScreen.getTag()).commit();
+
     }
 
-
-   public void getMusic(){
+    public Cursor getMusic(){
         Context context = getContextOfApplication();
         ContentResolver contentResolver = context.getContentResolver();
         Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor songcursor = contentResolver.query(songUri, null, null, null, null);
 
+
         if (songcursor != null && songcursor.moveToFirst()){
             int songId = songcursor.getColumnIndex(MediaStore.Audio.Media._ID);
             int songTitle = songcursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
             int songArtist = songcursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
-            int songGenre = songcursor.getColumnIndex(MediaStore.Audio.Genres._ID);
+            int songAlbum = songcursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
             int songDuration = songcursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
+            int pathSong = songcursor.getColumnIndex(MediaStore.Audio.Media.DATA);
 
             do{
                 Long currentId = songcursor.getLong(songId);
                 String currentTitle = songcursor.getString(songTitle);
                 String currentArtist = songcursor.getString(songArtist);
-                String currentGenre = songcursor.getString(songGenre);
+                String currentAlbum = songcursor.getString(songAlbum);
                 Long currentDuration = songcursor.getLong(songDuration);
-                songList.add(new Song(currentId, currentTitle, currentArtist, currentDuration, currentGenre));
+                String currentPath = songcursor.getString(pathSong);
+
+                songList.add(new Song(currentId, currentTitle, currentArtist, currentDuration, currentAlbum, currentPath ));
             }
             while (songcursor.moveToNext());
         }
+        return songcursor;
     }
 
     @Override
@@ -141,5 +157,59 @@ public class MyMusic extends Fragment {
                 return;
             }
         }
+    }
+
+    public void getNext(Song currentSong) {
+
+        //TODO: O problema é que não posso ir buscar o id tem mesmo de ser a posição
+        int position = (int) (currentSong.getID() + 1);
+        if(position >= songList.size())
+        {
+            String nextSong = songList.get(0).getPathSong();
+            Song next = songList.get(0);
+            String title = next.getTitle();
+            String artist = next.getArtist();
+            Long duraction = next.getDuration();
+            String album = next.getAlbum();
+            passingToScreen(title, artist, duraction.toString(),album);
+            ((MainActivity)getActivity()).playerstart(nextSong, next);
+
+        }else{
+            String nextSong = songList.get(position).getPathSong();
+            Song next = songList.get(position);
+            String title = next.getTitle();
+            String artist = next.getArtist();
+            Long duraction = next.getDuration();
+            String album = next.getAlbum();
+            passingToScreen(title, artist, duraction.toString(),album);
+            ((MainActivity)getActivity()).playerstart(nextSong, next);
+        }
+
+    }
+
+    public void getPrevious(Song currentSong) {
+        int position = (int) (currentSong.getID() - 1);
+        if(position < 0)
+        {
+            String previousSong = songList.get(songList.size()).getPathSong();
+            Song previous = songList.get(songList.size());
+            String title = previous.getTitle();
+            String artist = previous.getArtist();
+            Long duraction = previous.getDuration();
+            String album = previous.getAlbum();
+            passingToScreen(title, artist, duraction.toString(),album);
+            ((MainActivity)getActivity()).playerstart(previousSong, previous);
+
+        }else{
+            String previousSong = songList.get(position).getPathSong();
+            Song previous = songList.get(songList.size());
+            String title = previous.getTitle();
+            String artist = previous.getArtist();
+            Long duraction = previous.getDuration();
+            String album = previous.getAlbum();
+            passingToScreen(title, artist, duraction.toString(),album);
+            ((MainActivity)getActivity()).playerstart(previousSong, previous);
+        }
+
     }
 }
