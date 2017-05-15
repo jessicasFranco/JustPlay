@@ -22,7 +22,7 @@ public class SongScreen extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.song_screen, container, false);
 
-      Bundle bundle = getArguments();
+        Bundle bundle = getArguments();
 
         String songTitle = bundle.getString("songTitle");
         String songArtist = bundle.getString("songArtist");
@@ -48,8 +48,6 @@ public class SongScreen extends Fragment {
         //Set the values to the textViews in Playbar Fragment;
         song.setText(songTitle);
         duration.setText(durationSong);
-
-
 
         return view;
     }

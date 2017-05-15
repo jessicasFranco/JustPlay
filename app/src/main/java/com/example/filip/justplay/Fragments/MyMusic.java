@@ -195,9 +195,9 @@ public class MyMusic extends Fragment {
             Song previous = songList.get(songList.size());
             String title = previous.getTitle();
             String artist = previous.getArtist();
-            Long duraction = previous.getDuration();
+            Long duration = previous.getDuration();
             String album = previous.getAlbum();
-            passingToScreen(title, artist, duraction.toString(),album);
+            passingToScreen(title, artist, duration.toString(),album);
             ((MainActivity)getActivity()).playerStart(previousSong, previous);
 
         }else{
