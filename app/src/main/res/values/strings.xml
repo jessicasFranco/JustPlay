@@ -37,6 +37,7 @@
     <string name="artist_label">Artist</string>
     <string name="name">Artist</string>
     <string name="artists">Artists</string>
+    <string name="btn1">Button 1 clicked</string>
 
 
 </resources>
