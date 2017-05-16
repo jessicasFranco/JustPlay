@@ -90,10 +90,12 @@ public class MainActivity extends AppCompatActivity
     public ImageView block;
     public TextView currentTime, songDuration, song;
 
-    private SeekBar seekbar;
-    Runnable runnable;
 
-    private MediaPlayer mediaPlayer;
+    SeekBar seekbar;
+    MediaPlayer mediaPlayer;
+
+    Handler handler;
+    Runnable runnable;
 
     private double startTime = 0;
     private double finalTime = 0;
@@ -304,6 +306,9 @@ public class MainActivity extends AppCompatActivity
 
     public void playerStart( final String path, final Song currentSong) {
 
+        handler = new Handler();
+        seekbar = (SeekBar) findViewById(R.id.seekbar);
+
         //all the buttons/images
         play = (ImageView) findViewById(R.id.play);
         forward = (ImageView) findViewById(R.id.forward);
@@ -312,20 +317,19 @@ public class MainActivity extends AppCompatActivity
         //Bottom with name of music (Playbar textview)
         TextView durationTime = (TextView) findViewById(R.id.songDuration);
         final TextView currentTime = (TextView) findViewById(R.id.currentTime);
+        durationTime.setText(Utility.convertDuration(currentSong.getDuration()));
 
+        handler = new Handler();
         seekbar = (SeekBar) findViewById(R.id.seekbar);
         //seekbar.setMax(mediaPlayer.getDuration());
-        currentTime.setText("" + Utility.convertDuration(progress) + "");
 
         mediaPlayer = MediaPlayer.create(getApplicationContext(), Uri.parse(path));
-
+        mediaPlayer.start();
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
-                seekbar.setProgress(0);
                 seekbar.setMax(mediaPlayer.getDuration());
                 playCycle();
-                mediaPlayer.start();
                 play.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause));
                 Toast.makeText(getApplicationContext(), "Playing", Toast.LENGTH_SHORT).show();
 
@@ -368,8 +372,6 @@ public class MainActivity extends AppCompatActivity
                             myMusic.getPrevious(currentSong);
                             Toast.makeText(getApplicationContext(),"Previous", Toast.LENGTH_SHORT).show();
                         }
-
-                        ;
                     }
                 });
             }
@@ -377,15 +379,14 @@ public class MainActivity extends AppCompatActivity
         });
 
         seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            int value_progress = progress;
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                //TODO tanto o current esta a dar valores estranhos e a seekbar nao esta a ter o progresso
-                currentTime.setText("" + Utility.convertDuration(value_progress) + "");
+                String adorote =  Utility.convertDuration(progress);
+                currentTime.setText(adorote);
                 seekbar.setProgress(progress);
                 if (fromUser) {
                     mediaPlayer.seekTo(progress);
-                    currentTime.setText("" + Utility.convertDuration(value_progress)+ "");
+                    currentTime.setText(Utility.convertDuration(progress));
                 }
             }
 
@@ -403,6 +404,7 @@ public class MainActivity extends AppCompatActivity
 
     public void playCycle(){
         seekbar.setProgress(mediaPlayer.getCurrentPosition());
+
         if(mediaPlayer.isPlaying()){
             runnable = new Runnable(){
                 @Override
@@ -417,5 +419,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+       // mediaPlayer.start();
     }
+
 }

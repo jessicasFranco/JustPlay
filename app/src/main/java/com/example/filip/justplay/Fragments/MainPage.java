@@ -118,19 +118,6 @@ public class MainPage extends Fragment {
         });
     }
 
-    private void onDisplay(String label) {
-        Bundle bundle = new Bundle();
-        bundle.putString("label", label);
-
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        SongScreen songScreen = new SongScreen();
-        songScreen.setArguments(bundle);
-        fragmentTransaction.replace(R.id.layoutCM,
-                songScreen,
-                songScreen.getTag()).commit();
-
-    }
 
     public void getArtists(ArrayList<String> array){
         Context context = getContextOfApplication();

@@ -36,8 +36,6 @@ public class MyMusic extends Fragment {
 
     static ArrayList<Song> songList = new ArrayList<Song>();
     ListView songView;
-    SongScreen songScreen = new SongScreen();
-    Bundle bundle = new Bundle();
     Song currentSong;
 
     public MyMusic() {
@@ -80,35 +78,13 @@ public class MyMusic extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                String songTitle = ((TextView) view.findViewById(R.id.artist_label)).getText().toString();
-                String songArtist = ((TextView) view.findViewById(R.id.artistSong)).getText().toString();
-                String durationSong = ((TextView) view.findViewById(R.id.songDuration)).getText().toString();
                 Song currentSong = songList.get(position);
-                String songAlbum = currentSong.getAlbum();
-                passingToScreen(songTitle, songArtist, durationSong, songAlbum);
-                //Path have the path of the song
                 String path = currentSong.getPathSong();
                 ((MainActivity) getActivity()).playerStart(path, currentSong);
             }
         });
     }
 
-    private void passingToScreen(String songTitle, String songArtist, String durationSong, String songAlbum) {
-        Bundle bundle = new Bundle();
-        bundle.putString("songTitle", songTitle);
-        bundle.putString("songArtist", songArtist);
-        bundle.putString("durationSong", durationSong);
-        bundle.putString("songAlbum", songAlbum);
-
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        SongScreen songScreen = new SongScreen();
-        songScreen.setArguments(bundle);
-        fragmentTransaction.replace(R.id.layoutCM,
-                songScreen,
-                songScreen.getTag()).commit();
-
-    }
 
     public Cursor getMusic() {
         Context context = getContextOfApplication();
@@ -178,33 +154,12 @@ public class MyMusic extends Fragment {
             } else {
                 nextSong = songList.get(position1 + 1).getPathSong();
                 next = songList.get(position1 + 1);
-                String title = next.getTitle();
             }
-            String title = next.getTitle();
-            String artist = next.getArtist();
-            String album = next.getAlbum();
-            Long duration = next.getDuration();
-
-            passToScreen(title, artist, album, duration);
             ((MainActivity) mActivity).playerStart(nextSong, next);
         }
     }
 
-    private void passToScreen(String title, String artist, String album, Long duration) {
-        bundle.putString("songTitle", title);
-        bundle.putString("songArtist", artist);
-        bundle.putString("songAlbum", album);
-        bundle.putString("durationSong", duration.toString());
 
-        songScreen.setArguments(bundle);
-
-
-        mActivity.getSupportFragmentManager()
-                .beginTransaction()
-                .detach(songScreen)
-                .attach(songScreen)
-                .commit();
-    }
 
     public void getPrevious(Song currentSong) {
 
@@ -219,11 +174,6 @@ public class MyMusic extends Fragment {
                 previousSong = songList.get(position1 - 1).getPathSong();
                 previous = songList.get(position1 - 1);
             }
-            String title = previous.getTitle();
-            String artist = previous.getArtist();
-            String album = previous.getAlbum();
-            Long duration = previous.getDuration();
-            passToScreen(title, artist, album, duration);
             ((MainActivity) mActivity).playerStart(previousSong, previous);
         }
     }
