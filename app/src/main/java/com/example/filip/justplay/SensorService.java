@@ -57,9 +57,9 @@ public class SensorService extends Service {
     TimerTask timerTask = new TimerTask() {
         @Override
         public void run() {
-            //Log.i("Service", "Running");
+            Log.i("Service", "Running");
             FilteringData();
-            //Log.d("State", " Run: " + isRunning + " Walk: " + isWalking + " Seated: " + isSeated);
+            Log.d("State", " Run: " + isRunning + " Walk: " + isWalking + " Seated: " + isSeated);
 
         }
     };
@@ -101,7 +101,7 @@ public class SensorService extends Service {
     private void FilteringData(/*float distance*/){
 
         double accMean = mean(accBuffer);
-        //Log.d("Acc", " " + accMean);
+        Log.d("Acc", " " + accMean);
         if(accMean > 2.0){
             isRunning = true;
             isWalking = false;

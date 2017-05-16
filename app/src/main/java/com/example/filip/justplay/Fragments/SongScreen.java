@@ -1,7 +1,9 @@
 package com.example.filip.justplay.Fragments;
 
 import android.os.Bundle;
+import android.os.Debug;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +20,7 @@ public class SongScreen extends Fragment {
         View view = inflater.inflate(R.layout.song_screen, container, false);
 
         Bundle bundle = getArguments();
+
 
         String songTitle = bundle.getString("songTitle");
         String songArtist = bundle.getString("songArtist");

@@ -169,76 +169,62 @@ public class MyMusic extends Fragment {
     public void getNext(Song currentSong) {
 
         if (songList.contains(currentSong)) {
+            String nextSong;
+            Song next;
             int position1 = songList.indexOf(currentSong);
             if (position1 > songList.size()) {
-                String nextSong = songList.get(0).getPathSong();
-                Song next = songList.get(0);
-                String title = next.getTitle();
-                String artist = next.getArtist();
-                String album = next.getAlbum();
-                Long duration = next.getDuration();
-                passToScreen(title, artist, album, duration);
-                ((MainActivity) mActivity).playerStart(nextSong, next);
-
-
+                nextSong = songList.get(0).getPathSong();
+                next = songList.get(0);
             } else {
-                String nextSong = songList.get(position1 + 1).getPathSong();
-                Song next = songList.get(position1 + 1);
+                nextSong = songList.get(position1 + 1).getPathSong();
+                next = songList.get(position1 + 1);
                 String title = next.getTitle();
-                String artist = next.getArtist();
-                String album = next.getAlbum();
-                Long duration = next.getDuration();
-                passToScreen(title, artist, album, duration);
-                ((MainActivity) mActivity).playerStart(nextSong, next);
             }
+            String title = next.getTitle();
+            String artist = next.getArtist();
+            String album = next.getAlbum();
+            Long duration = next.getDuration();
+
+            passToScreen(title, artist, album, duration);
+            ((MainActivity) mActivity).playerStart(nextSong, next);
         }
     }
 
     private void passToScreen(String title, String artist, String album, Long duration) {
-
-
         bundle.putString("songTitle", title);
         bundle.putString("songArtist", artist);
         bundle.putString("songAlbum", album);
         bundle.putString("durationSong", duration.toString());
-        // UpdateFragment uf = new UpdateFragment(bundle);
+
         songScreen.setArguments(bundle);
+
 
         mActivity.getSupportFragmentManager()
                 .beginTransaction()
                 .detach(songScreen)
                 .attach(songScreen)
                 .commit();
-
     }
 
     public void getPrevious(Song currentSong) {
 
         if (songList.contains(currentSong)) {
-
+            String previousSong;
+            Song previous;
             int position1 = songList.indexOf(currentSong);
-
             if (position1 < 0) {
-
-                String previousSong = songList.get(songList.size()).getPathSong();
-                Song previous = songList.get(songList.size());
-                String title = previous.getTitle();
-                String artist = previous.getArtist();
-                String album = previous.getAlbum();
-                Long duration = previous.getDuration();
-                passToScreen(title, artist, album, duration);
-                ((MainActivity) mActivity).playerStart(previousSong, previous);
-
+                previousSong = songList.get(songList.size()).getPathSong();
+                previous = songList.get(songList.size());
             } else {
-                String previousSong = songList.get(position1 - 1).getPathSong();
-                Song previous = songList.get(position1 - 1);
-                String title = previous.getTitle();
-                String artist = previous.getArtist();
-                String album = previous.getAlbum();
-                Long duration = previous.getDuration();
-                passToScreen(title, artist, album, duration);
-                ((MainActivity) mActivity).playerStart(previousSong, previous);
+                previousSong = songList.get(position1 - 1).getPathSong();
+                previous = songList.get(position1 - 1);
             }
+            String title = previous.getTitle();
+            String artist = previous.getArtist();
+            String album = previous.getAlbum();
+            Long duration = previous.getDuration();
+            passToScreen(title, artist, album, duration);
+            ((MainActivity) mActivity).playerStart(previousSong, previous);
         }
     }
 }
