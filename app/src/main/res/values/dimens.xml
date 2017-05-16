@@ -8,8 +8,8 @@
     <dimen name="margin_text">10dp</dimen>
 
     <dimen name="text_margin">10dp</dimen>
-    <dimen name="activityname">30sp</dimen>
-    <dimen name="songsname">20sp</dimen>
-    <dimen name="caractsong">15sp</dimen>
-    <dimen name="caractsongsreen">20sp</dimen>
+    <dimen name="activity_name">30sp</dimen>
+    <dimen name="songs_name">20sp</dimen>
+    <dimen name="char_song">15sp</dimen>
+    <dimen name="char_song_screen">20sp</dimen>
 </resources>

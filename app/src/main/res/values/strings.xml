@@ -2,7 +2,7 @@
     <string name="app_name">JustPlay</string>
     <string name="title_activity_login">Sign in</string>
     <string name="not_log_in">Login Error</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">JustPlay</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -11,29 +11,32 @@
 
     <string name="facebook_app_id">286026141855698</string>
     <string name="song_title"> </string>
-    <string name="artist">Artista</string>
-    <string name="duration">Duração</string>
-    <string name="album">Álbum</string>
-    <string name="genre">Género</string>
+    <string name="artist">Artist</string>
+    <string name="duration">Duration</string>
+    <string name="album">Album</string>
+    <string name="genre">Gender</string>
 
-    <string name="activityname">Just Play</string>
+    <string name="activityName">JustPlay</string>
 
     <!-- PlayBar names -->
     <string name="play">Play</string>
     <string name="rewind">Rewind</string>
-    <string name="favorito">Favorito</string>
+    <string name="favourite">Favourite</string>
     <string name="forward">Forward</string>
     <string name="block">Block</string>
     <string name="currentTime" />
     <string name="songDuration" />
-    <string name="background"/>
-
+    <string name="background" />
 
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="android_studio">Android Studio</string>
     <string name="android_studio_android_com">android.studio@android.com</string>
+    <string name="artist_name">Artist Name</string>
+    <string name="artist_label">Artist</string>
+    <string name="name">Artist</string>
+    <string name="artists">Artists</string>
 
 
 </resources>

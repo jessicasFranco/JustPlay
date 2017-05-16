@@ -62,15 +62,12 @@ public class MyMusic extends Fragment {
                         new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST);
             }
         } else {
-            accessfiles();
-    }
-
+            accessFiles();
+        }
         return view;
-
     }
 
-    public void accessfiles(){
-
+    public void accessFiles(){
         songList = new ArrayList<Song>();
 
         Cursor song = getMusic();
@@ -82,20 +79,18 @@ public class MyMusic extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                String songTitle = ((TextView) view.findViewById(R.id.titleSong)).getText().toString();
+                String songTitle = ((TextView) view.findViewById(R.id.artist_label)).getText().toString();
                 String songArtist = ((TextView) view.findViewById(R.id.artistSong)).getText().toString();
                 String durationSong = ((TextView) view.findViewById(R.id.songDuration)).getText().toString();
-                 Song currentSong = songList.get(position);
+                Song currentSong = songList.get(position);
                 String songAlbum = currentSong.getAlbum();
                 passingToScreen(songTitle,songArtist,durationSong,songAlbum);
                 //Path have the path of the song
                 String path = currentSong.getPathSong();
                 ((MainActivity)getActivity()).playerStart(path ,currentSong);
-
-
-                
-    }});
+            }});
     }
+
     private void passingToScreen(String songTitle, String songArtist, String durationSong, String songAlbum) {
         Bundle bundle = new Bundle();
         bundle.putString("songTitle", songTitle);
@@ -136,7 +131,9 @@ public class MyMusic extends Fragment {
                 Long currentDuration = songcursor.getLong(songDuration);
                 String currentPath = songcursor.getString(pathSong);
 
-                songList.add(new Song(currentId, currentTitle, currentArtist, currentDuration, currentAlbum, currentPath ));
+                Song song = new Song(currentId, currentTitle, currentArtist, currentDuration, currentAlbum, currentPath );
+                songList.add(song );
+
             }
             while (songcursor.moveToNext());
         }
@@ -151,7 +148,7 @@ public class MyMusic extends Fragment {
                    if(ContextCompat.checkSelfPermission(getContext(),
                            Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
 
-                       accessfiles();
+                       accessFiles();
                    }
                 }
                 return;

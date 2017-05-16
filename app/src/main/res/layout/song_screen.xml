@@ -7,7 +7,7 @@
         android:orientation="vertical">
 
     <TextView
-        android:id="@+id/titleSong"
+        android:id="@+id/artist_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
@@ -15,7 +15,7 @@
         android:text="@string/song_title"
         android:textAlignment="center"
         android:textColor="@color/colorPrimary"
-        android:textSize="@dimen/activityname"
+        android:textSize="@dimen/activity_name"
         android:textStyle="bold"
         android:layout_margin="@dimen/text_margin"/>
 
@@ -23,11 +23,11 @@
         android:id="@+id/artistSong"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/titleSong"
+        android:layout_below="@id/artist_label"
         android:text="@string/artist"
         android:textAlignment="center"
         android:textColor="@color/colorPrimary"
-        android:textSize="@dimen/caractsongsreen"
+        android:textSize="@dimen/char_song_screen"
         android:layout_margin="@dimen/text_margin"/>
 
     <TextView
@@ -39,7 +39,7 @@
         android:text="@string/album"
         android:textAlignment="center"
         android:textColor="@color/colorPrimary"
-        android:textSize="@dimen/caractsongsreen"
+        android:textSize="@dimen/char_song_screen"
         android:layout_margin="@dimen/text_margin"/>
 
     <ImageView
@@ -59,7 +59,7 @@
         android:text="@string/duration"
         android:textAlignment="center"
         android:textColor="@color/colortextMessages"
-        android:textSize="@dimen/caractsongsreen"
+        android:textSize="@dimen/char_song_screen"
         android:layout_margin="@dimen/text_margin"/>
 
 </RelativeLayout>

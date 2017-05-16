@@ -47,7 +47,7 @@ public class SongAdapter extends BaseAdapter{
         LinearLayout songLay = (LinearLayout)songInflater.inflate
                 (R.layout.song_row, parent, false);
         //get title and artist views
-        TextView songTitle = (TextView)songLay.findViewById(R.id.titleSong);
+        TextView songTitle = (TextView)songLay.findViewById(R.id.artist_label);
         TextView songArtist = (TextView)songLay.findViewById(R.id.artistSong);
         TextView songDuration = (TextView)songLay.findViewById(R.id.songDuration);
 

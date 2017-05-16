@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.filip.justplay.Fragments.MainPage;
 import com.example.filip.justplay.Fragments.MyMusic;
 import com.example.filip.justplay.Utility.Utility;
 import com.facebook.AccessToken;
@@ -104,6 +105,13 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        MainPage mainPage = new MainPage();
+        FragmentManager manager = getSupportFragmentManager();
+        manager.beginTransaction().replace(
+                R.id.layoutCM,
+                mainPage,
+                mainPage.getTag()).commit();
 
         //Silent Log in
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -192,8 +200,12 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         if (id == R.id.nav_mainPage) {
-            startActivity(new Intent(MainActivity.this, MainActivity.class));
-
+            MainPage mainPage = new MainPage();
+            FragmentManager manager = getSupportFragmentManager();
+            manager.beginTransaction().replace(
+                    R.id.layoutCM,
+                    mainPage,
+                    mainPage.getTag()).commit();
         } else if (id == R.id.nav_MyMusic) {
             MyMusic myMusic = new MyMusic();
             FragmentManager manager = getSupportFragmentManager();
