@@ -114,15 +114,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         //Service
-        /*
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-        != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions( this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    100);
-        } else {
-        */
         startService(new Intent(MainActivity.this, SensorService.class));
-        //}
 
         MainPage mainPage = new MainPage();
         FragmentManager manager = getSupportFragmentManager();

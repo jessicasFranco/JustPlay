@@ -15,6 +15,8 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.util.DebugUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -85,16 +87,49 @@ public class MainPage extends Fragment {
         return view;
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode){
+            case MY_PERMISSION_REQUEST: {
+                if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    if(ContextCompat.checkSelfPermission(getContext(),
+                            Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+
+                        getArtists(artists);
+                        getAttributes(artists, artistsGrid);
+                        getGenre(genre);
+                        getAttributes(genre, genreGrid);
+                    }
+                }
+                return;
+            }
+        }
+    }
+
     private void getAttributes(final ArrayList<String> array, GridView grid){
         FolderAdapter folderAdt = new FolderAdapter(this.getContext(), array);
         grid.setAdapter(folderAdt);
 
-        grid.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+        grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+            }
+        });
+    }
 
-            }});
+    private void onDisplay(String label) {
+        Bundle bundle = new Bundle();
+        bundle.putString("label", label);
+
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        SongScreen songScreen = new SongScreen();
+        songScreen.setArguments(bundle);
+        fragmentTransaction.replace(R.id.layoutCM,
+                songScreen,
+                songScreen.getTag()).commit();
+
     }
 
     public void getArtists(ArrayList<String> array){
