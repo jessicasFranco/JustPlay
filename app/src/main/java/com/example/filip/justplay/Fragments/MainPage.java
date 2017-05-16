@@ -14,13 +14,22 @@ import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.util.DebugUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.filip.justplay.Adapters.FolderAdapter;
+import com.example.filip.justplay.LoginActivity;
+import com.example.filip.justplay.MainActivity;
 import com.example.filip.justplay.R;
 import com.example.filip.justplay.Song;
 
@@ -29,6 +38,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import static com.example.filip.justplay.MainActivity.getContextOfApplication;
+import static com.example.filip.justplay.R.id.play_playlist;
+import static com.example.filip.justplay.R.id.shuffle;
 
 public class MainPage extends Fragment {
 
@@ -68,17 +79,22 @@ public class MainPage extends Fragment {
         } else {
             getArtists(artists);
             getAttributes(artists, artistsGrid);
-
             getGenre(genre);
             getAttributes(genre, genreGrid);
         }
         return view;
     }
 
-    private void getAttributes(ArrayList<String> array, GridView grid){
+    private void getAttributes(final ArrayList<String> array, GridView grid){
         FolderAdapter folderAdt = new FolderAdapter(this.getContext(), array);
         grid.setAdapter(folderAdt);
 
+        grid.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+
+            }});
     }
 
     public void getArtists(ArrayList<String> array){

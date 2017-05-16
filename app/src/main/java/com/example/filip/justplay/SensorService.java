@@ -1,8 +1,6 @@
 package com.example.filip.justplay;
 
-import android.*;
 import android.Manifest;
-import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -14,9 +12,11 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.IBinder;
-import android.support.annotation.IntDef;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
@@ -27,23 +27,26 @@ import java.util.TimerTask;
 public class SensorService extends Service {
 
     private SensorManager sensorManager;
-    LocationManager locationManager;
+    private LocationManager locationManager;
     private static final int PERMISSION_REQUEST_CODE = 100;
 
-    float[] gravity = {0, 0, 0};
-    float[] linear_acceleration = {0, 0, 0};
-    final float alpha = 0.8f;
+    private float[] gravity = {0, 0, 0};
+    private float[] linear_acceleration = {0, 0, 0};
+    private final float alpha = 0.8f;
 
-    ArrayList<Float> buffer = new ArrayList<Float>();
-    private int bufferSize = 25;
+    private ArrayList<Float> accBuffer = new ArrayList<Float>();
+    private ArrayList<double[]> geoBuffer = new ArrayList<>();
+
+    private boolean isRunning;
+    private boolean isWalking;
+    private boolean isSeated;
 
     //BroadcastIntent
     private Intent broadcastIntent = new Intent();
 
     //Listeners
     private AccelerometerSensorListener accelerometerSensorListener = new AccelerometerSensorListener();
-    private GravitySensorListener gravitySensorListener = new GravitySensorListener();
-    private LocationSensorListener locationSensorListener = new LocationSensorListener();
+    //private LocationSensorListener locationSensorListener = new LocationSensorListener();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -55,6 +58,15 @@ public class SensorService extends Service {
         @Override
         public void run() {
             Log.i("Service", "Running");
+
+            /*float distance = 0;
+            if(geoBuffer.size() > 2)
+            {
+                distance = (float) calculateDistance(geoBuffer);
+            }*/
+            FilteringData();
+            Log.d("State", " Run: " + isRunning + " Walk: " + isWalking + " Seated: " + isSeated);
+
         }
     };
     private Timer mTimer;
@@ -64,13 +76,14 @@ public class SensorService extends Service {
         super.onCreate();
 
         mTimer = new Timer();
-        mTimer.schedule(timerTask, 2000, 2 * 1000);
-
-        buffer.clear();
+        mTimer.schedule(timerTask, 1000, 1 * 1000);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d("onStartCommand", "onStartCommand");
+
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         //Accelerometer
@@ -78,20 +91,14 @@ public class SensorService extends Service {
         if (accSensor != null)
             sensorManager.registerListener(accelerometerSensorListener, accSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
-        //Gravity (Gyro)
-        Sensor gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
-        if (gravitySensor != null)
-            sensorManager.registerListener(gravitySensorListener, gravitySensor, SensorManager.SENSOR_DELAY_NORMAL);
-
         //Location
+        /*
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions((Activity) getApplicationContext(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSION_REQUEST_CODE);
-        }
-        else{
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            //This is already verified
+        }else{
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationSensorListener);
-        }
+        }*/
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -99,8 +106,7 @@ public class SensorService extends Service {
     public void onDestroy() {
         super.onDestroy();
         sensorManager.unregisterListener(accelerometerSensorListener);
-        sensorManager.unregisterListener(gravitySensorListener);
-        locationManager.removeUpdates(locationSensorListener);
+        //locationManager.removeUpdates(locationSensorListener);
 
         mTimer.cancel();
         timerTask.cancel();
@@ -108,6 +114,50 @@ public class SensorService extends Service {
         broadcastIntent.putExtra("value", "store");
         sendBroadcast(broadcastIntent);
     }
+
+    private void FilteringData(/*float distance*/){
+
+        double accMean = mean(accBuffer);
+        Log.d("Acc", " " + accMean);
+        if(accMean > 2.0){
+            isRunning = true;
+            isWalking = false;
+            isSeated = false;
+        }
+        else if(accMean > 1.0){
+            isRunning = false;
+            isWalking = true;
+            isSeated = false;
+        }
+        else {
+            isRunning = false;
+            isWalking = false;
+            isSeated = true;
+        }
+    }
+
+    private double mean(ArrayList<Float> m) {
+        double sum = 0;
+        for (int i = 0; i < m.size(); i++) {
+            sum += m.get(i);
+        }
+        return sum / m.size();
+    }
+
+    //If we need, eventually.
+    private double calculateDistance(ArrayList<double[]> m){
+        Location loc1 = new Location("");
+        loc1.setLatitude(m.get(m.size() - 2)[0]);
+        loc1.setLongitude(m.get(m.size() - 2)[1]);
+
+        Location loc2 = new Location("");
+        loc2.setLatitude(m.get(m.size() - 1)[0]);
+        loc2.setLongitude(m.get(m.size() - 1)[1]);
+
+        float distanceInMeters = Math.abs(loc1.distanceTo(loc2));
+        return distanceInMeters;
+    }
+
 
     private class AccelerometerSensorListener implements SensorEventListener {
         @Override
@@ -121,6 +171,13 @@ public class SensorService extends Service {
             linear_acceleration[0] = event.values[0] - gravity[0];
             linear_acceleration[1] = event.values[1] - gravity[1];
             linear_acceleration[2] = event.values[2] - gravity[2];
+
+            float magnitude = Math.abs((float)Math.sqrt(linear_acceleration[0]*linear_acceleration[0]
+                    +linear_acceleration[1]*linear_acceleration[1]
+                    +linear_acceleration[2]*linear_acceleration[2]));
+
+            accBuffer.add(magnitude);
+            if(accBuffer.size() > 250){accBuffer.clear();}
         }
 
         @Override
@@ -128,22 +185,19 @@ public class SensorService extends Service {
 
     }
 
-    private class GravitySensorListener implements SensorEventListener {
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            Log.i("Gravity Sensor Listener", " Force of gravity along the X axis: " +
-                    event.values[0] + " Force of gravity along the  Y axis: " + event.values[1] +
-                    " Force of gravity along the Z axis: " + event.values[2]);
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) { }
-    }
-
+    /*
     private class LocationSensorListener implements LocationListener {
         @Override
         public void onLocationChanged(Location location) {
             Log.i("LocationListener", "Latitude:" + location.getLatitude()+ " Longitude:"+location.getLongitude()+ " Altitude:"+location.getAltitude());
+
+            double latitude = location.getLatitude();
+            double longitude = location.getLongitude();
+            double altitude = location.getAltitude();
+            double[] geo = {latitude, longitude, altitude};
+
+            geoBuffer.add(geo);
+            if(geoBuffer.size() > 250){geoBuffer.clear();}
         }
 
         @Override
@@ -161,4 +215,5 @@ public class SensorService extends Service {
             Log.i("LocationListener", "Provider disabled");
         }
     }
+    */
 }
