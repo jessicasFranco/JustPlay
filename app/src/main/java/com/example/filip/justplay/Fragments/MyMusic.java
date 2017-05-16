@@ -36,7 +36,6 @@ public class MyMusic extends Fragment {
 
     static ArrayList<Song> songList = new ArrayList<Song>();
     ListView songView;
-    Song currentSong;
 
     public MyMusic() {
         // Required empty public constructor
@@ -84,7 +83,6 @@ public class MyMusic extends Fragment {
             }
         });
     }
-
 
     public Cursor getMusic() {
         Context context = getContextOfApplication();
@@ -159,22 +157,21 @@ public class MyMusic extends Fragment {
         }
     }
 
-
-
     public void getPrevious(Song currentSong) {
 
         if (songList.contains(currentSong)) {
-            String previousSong;
+            String path;
             Song previous;
-            int position1 = songList.indexOf(currentSong);
-            if (position1 < 0) {
-                previousSong = songList.get(songList.size()).getPathSong();
-                previous = songList.get(songList.size());
-            } else {
-                previousSong = songList.get(position1 - 1).getPathSong();
-                previous = songList.get(position1 - 1);
+            int position = songList.indexOf(currentSong);
+            if(position > 0){
+                path = songList.get(position - 1).getPathSong();
+                previous = songList.get(position - 1);
             }
-            ((MainActivity) mActivity).playerStart(previousSong, previous);
+            else{
+                path = currentSong.getPathSong();
+                previous = currentSong;
+            }
+            ((MainActivity) mActivity).playerStart(path, previous);
         }
     }
 }

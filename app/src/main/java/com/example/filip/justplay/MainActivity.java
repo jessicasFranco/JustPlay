@@ -4,31 +4,24 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
-import android.app.Fragment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -39,12 +32,8 @@ import com.example.filip.justplay.Fragments.MainPage;
 import com.example.filip.justplay.Fragments.MyMusic;
 import com.example.filip.justplay.Utility.Utility;
 import com.facebook.AccessToken;
-import com.facebook.FacebookCallback;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
 import com.facebook.Profile;
 import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -53,11 +42,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import static android.R.attr.progress;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener {
@@ -117,13 +101,6 @@ public class MainActivity extends AppCompatActivity
 
         //Service
         startService(new Intent(MainActivity.this, SensorService.class));
-
-        MainPage mainPage = new MainPage();
-        FragmentManager manager = getSupportFragmentManager();
-        manager.beginTransaction().replace(
-                R.id.layoutCM,
-                mainPage,
-                mainPage.getTag()).commit();
 
         //Silent Log in
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -381,24 +358,30 @@ public class MainActivity extends AppCompatActivity
         seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                String adorote =  Utility.convertDuration(progress);
-                currentTime.setText(adorote);
+                String prog =  Utility.convertDuration(progress);
+                currentTime.setText(prog);
                 seekbar.setProgress(progress);
                 if (fromUser) {
                     mediaPlayer.seekTo(progress);
                     currentTime.setText(Utility.convertDuration(progress));
                 }
+                Log.i("LOG", progress + " " + currentSong.getDuration());
+                if(progress >= currentSong.getDuration()){
+                    MyMusic myMusic = new MyMusic();
+                    myMusic.getNext(currentSong);
+                }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
 
             }
+
+
         });
     }
 

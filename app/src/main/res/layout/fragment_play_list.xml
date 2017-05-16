@@ -1,0 +1,14 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/playlist"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.filip.justplay.Fragments.PlayList">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <ListView
+        android:id="@+id/play_list"
+        android:layout_width="match_parent"
+        android:layout_height="372dp" />
+</FrameLayout>
