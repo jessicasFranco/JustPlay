@@ -302,7 +302,7 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    public void playerStart(final String path, final Song currentSong) {
+    public void playerStart( final String path, final Song currentSong) {
 
         //all the buttons/images
         play = (ImageView) findViewById(R.id.play);
@@ -318,7 +318,6 @@ public class MainActivity extends AppCompatActivity
         currentTime.setText("" + Utility.convertDuration(progress) + "");
 
         mediaPlayer = MediaPlayer.create(getApplicationContext(), Uri.parse(path));
-
 
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
@@ -354,8 +353,7 @@ public class MainActivity extends AppCompatActivity
                             mediaPlayer.stop();
                             MyMusic myMusic = new MyMusic();
                             myMusic.getNext(currentSong);
-                            //MyMusic myMusic = (MyMusic) getSupportFragmentManager().findFragmentById(R.id.my_music);
-                            //myMusic.getNext();
+                            Toast.makeText(getApplicationContext(),"Next", Toast.LENGTH_SHORT).show();
                         }
 
                     }
@@ -364,8 +362,14 @@ public class MainActivity extends AppCompatActivity
                 rewind.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        MyMusic myMusic = (MyMusic) getSupportFragmentManager().findFragmentById(R.id.my_music);
-                        myMusic.getPrevious(currentSong);
+                        if(mediaPlayer.isPlaying()){
+                            mediaPlayer.stop();
+                            MyMusic myMusic = new MyMusic();
+                            myMusic.getPrevious(currentSong);
+                            Toast.makeText(getApplicationContext(),"Previous", Toast.LENGTH_SHORT).show();
+                        }
+
+                        ;
                     }
                 });
             }
@@ -377,8 +381,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 //TODO tanto o current esta a dar valores estranhos e a seekbar nao esta a ter o progresso
-                  currentTime.setText("" + Utility.convertDuration(value_progress) + "");
-                  seekbar.setProgress(progress);
+                currentTime.setText("" + Utility.convertDuration(value_progress) + "");
+                seekbar.setProgress(progress);
                 if (fromUser) {
                     mediaPlayer.seekTo(progress);
                     currentTime.setText("" + Utility.convertDuration(value_progress)+ "");
