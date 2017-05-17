@@ -79,7 +79,7 @@ public class MyMusic extends Fragment {
 
                 Song currentSong = songList.get(position);
                 String path = currentSong.getPathSong();
-                ((MainActivity) getActivity()).playerStart(path, currentSong);
+                ((MainActivity) getActivity()).playerStart(path, currentSong, 0);
             }
         });
     }
@@ -153,7 +153,7 @@ public class MyMusic extends Fragment {
                 nextSong = songList.get(position1 + 1).getPathSong();
                 next = songList.get(position1 + 1);
             }
-            ((MainActivity) mActivity).playerStart(nextSong, next);
+            ((MainActivity) mActivity).playerStart(nextSong, next, 0);
         }
     }
 
@@ -171,7 +171,7 @@ public class MyMusic extends Fragment {
                 path = currentSong.getPathSong();
                 previous = currentSong;
             }
-            ((MainActivity) mActivity).playerStart(path, previous);
+            ((MainActivity) mActivity).playerStart(path, previous, 0);
         }
     }
 }

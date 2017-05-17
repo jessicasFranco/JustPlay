@@ -13,6 +13,8 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,9 +33,11 @@ import static com.example.filip.justplay.MainActivity.getContextOfApplication;
 
 public class PlayList extends Fragment {
 
+    private final int value = 1;
+
     private static final String[] genreResting = {"Jazz", "Classic"};
     private static final String[] genreWalking = {"Pop", "Hip"};
-    private static final String[] genreJogging = {"Rock", "Dance", "Blues", "Rap"};
+    private static final String[] genreJogging = {"Blues", "Rap"};
 
     private static final int MY_PERMISSION_REQUEST = 1;
     private String currentFolder;
@@ -52,7 +56,9 @@ public class PlayList extends Fragment {
         View view = inflater.inflate(R.layout.my_music, container, false);
 
         Bundle bundle = getArguments();
-        currentFolder = bundle.getString("folder");
+        if (bundle != null) {
+            currentFolder = bundle.getString("folder");
+        }
 
         //List View
         songView = (ListView) view.findViewById(R.id.my_music);
@@ -80,11 +86,13 @@ public class PlayList extends Fragment {
         SongAdapter songAdt = new SongAdapter(this.getContext(), songList);
         songView.setAdapter(songAdt);
 
+        /*
         if(songList.size() != 0){
             Song song = songList.get(0);
             String songPath = song.getPathSong();
-            ((MainActivity) getActivity()).playerStart(songPath, song);
+            ((MainActivity) getActivity()).playerStart(songPath, song, value);
         }
+        */
 
         //When you click on the item pass to a new fragment with all the info
         songView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -98,7 +106,7 @@ public class PlayList extends Fragment {
 
                 //Path have the path of the song
                 String path = currentSong.getPathSong();
-                ((MainActivity) getActivity()).playerStart(path, currentSong);
+                ((MainActivity) getActivity()).playerStart(path, currentSong, value);
             }
         });
     }
@@ -120,6 +128,20 @@ public class PlayList extends Fragment {
     }
 
     public void getMusicByGenre(){
+
+        String[] genreName = new String[3];
+        switch (currentFolder){
+            case "Resting":
+                genreName = genreResting.clone();
+                break;
+            case "Jogging":
+                genreName = genreJogging.clone();
+                break;
+            case "Walking":
+                genreName = genreWalking.clone();
+                break;
+        }
+
         String[] variable = new String[]{
                 MediaStore.Audio.Genres.NAME,
                 MediaStore.Audio.Genres._ID
@@ -155,13 +177,63 @@ public class PlayList extends Fragment {
                         String currentPath = musicCursor.getString(pathSong);
 
                         Song song = new Song(currentId, currentTitle, currentArtist, currentDuration, currentAlbum, currentPath);
-                        songList.add(song);
+
+                        if(genre.contains(genreName[0])
+                                || genre.contains(genreName[1])){
+                            Log.i("Genre", genre);
+                            songList.add(song);
+                        }
+
 
                     }
                     while (musicCursor.moveToNext());
                 }
             }
             while(cursor.moveToNext());
+        }
+    }
+
+    public static AppCompatActivity mActivity;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mActivity = (AppCompatActivity) getActivity();
+    }
+
+    public void getNext(Song currentSong) {
+
+        if (songList.contains(currentSong)) {
+            String nextSong;
+            Song next;
+            int position1 = songList.indexOf(currentSong);
+            if (position1 > songList.size()) {
+                nextSong = songList.get(0).getPathSong();
+                next = songList.get(0);
+            } else {
+                nextSong = songList.get(position1 + 1).getPathSong();
+                next = songList.get(position1 + 1);
+            }
+            Log.i("TESTE", nextSong+ " " + next);
+            ((MainActivity) mActivity).playerStart(nextSong, next, value);
+        }
+    }
+
+    public void getPrevious(Song currentSong) {
+
+        if (songList.contains(currentSong)) {
+            String path;
+            Song previous;
+            int position = songList.indexOf(currentSong);
+            if(position > 0){
+                path = songList.get(position - 1).getPathSong();
+                previous = songList.get(position - 1);
+            }
+            else{
+                path = currentSong.getPathSong();
+                previous = currentSong;
+            }
+            ((MainActivity) mActivity).playerStart(path, previous, value);
         }
     }
 }

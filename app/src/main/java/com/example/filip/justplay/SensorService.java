@@ -18,7 +18,11 @@ import android.os.Debug;
 import android.os.IBinder;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+
+import com.example.filip.justplay.Fragments.MyMusic;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -37,12 +41,15 @@ public class SensorService extends Service {
     private ArrayList<Float> accBuffer = new ArrayList<Float>();
     private ArrayList<double[]> geoBuffer = new ArrayList<>();
 
-    private boolean isRunning;
-    private boolean isWalking;
-    private boolean isSeated;
+    public boolean isRunning;
+    public boolean isWalking;
+    public boolean isSeated;
 
     //BroadcastIntent
     private Intent broadcastIntent = new Intent();
+
+    public SensorService() {
+    }
 
     //Listeners
     private AccelerometerSensorListener accelerometerSensorListener = new AccelerometerSensorListener();
@@ -59,6 +66,7 @@ public class SensorService extends Service {
         public void run() {
             Log.i("Service", "Running");
             FilteringData();
+            sendMessage();
             Log.d("State", " Run: " + isRunning + " Walk: " + isWalking + " Seated: " + isSeated);
 
         }
@@ -70,12 +78,14 @@ public class SensorService extends Service {
         super.onCreate();
 
         mTimer = new Timer();
-        mTimer.schedule(timerTask, 1000, 1 * 1000);
+        mTimer.schedule(timerTask, 2000, 2 * 1000);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        broadcastIntent.setAction("PLAYLIST");
+
         Log.d("onStartCommand", "onStartCommand");
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
@@ -93,8 +103,15 @@ public class SensorService extends Service {
         mTimer.cancel();
         timerTask.cancel();
         sensorManager.unregisterListener(accelerometerSensorListener);
+    }
 
-        broadcastIntent.putExtra("value", "store");
+    private void sendMessage(){
+        String activity = "Jogging";
+        if(isSeated) activity = "Resting";
+        else if(isWalking) activity = "Walking";
+
+        Log.i("SendMessage", activity);
+        broadcastIntent.putExtra("activity",activity);
         sendBroadcast(broadcastIntent);
     }
 

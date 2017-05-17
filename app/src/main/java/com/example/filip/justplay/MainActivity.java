@@ -1,8 +1,10 @@
 package com.example.filip.justplay;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -12,6 +14,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -30,6 +33,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.filip.justplay.Fragments.MainPage;
 import com.example.filip.justplay.Fragments.MyMusic;
+import com.example.filip.justplay.Fragments.PlayList;
 import com.example.filip.justplay.Utility.Utility;
 import com.facebook.AccessToken;
 import com.facebook.Profile;
@@ -54,6 +58,10 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+    Intent _serviceIntent;
+    SensorBroadcastReceiver _receiver;
+
+
     //User Information
     private ImageView photoImageView;
     private TextView nameTextView;
@@ -76,7 +84,7 @@ public class MainActivity extends AppCompatActivity
 
 
     SeekBar seekbar;
-    MediaPlayer mediaPlayer;
+    public MediaPlayer mediaPlayer;
 
     Handler handler;
     Runnable runnable;
@@ -87,6 +95,10 @@ public class MainActivity extends AppCompatActivity
     private Handler myHandler = new Handler();
     private int forwardTime = 5000;
     private int backwardTime = 5000;
+
+
+    private String folder = "";
+    private String previousfolder = "";
 
     public static int oneTimeOnly = 0;
 
@@ -100,7 +112,20 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         //Service
-        startService(new Intent(MainActivity.this, SensorService.class));
+        _serviceIntent = new Intent(this,SensorService.class);
+        startService(_serviceIntent);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("PLAYLIST");
+        _receiver = new SensorBroadcastReceiver();
+        registerReceiver(_receiver, filter);
+
+        MainPage mainPage = new MainPage();
+        FragmentManager manager = getSupportFragmentManager();
+        manager.beginTransaction().replace(
+                R.id.layoutCM,
+                mainPage,
+                mainPage.getTag()).commit();
 
         //Silent Log in
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -144,6 +169,21 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private class SensorBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String str = intent.getStringExtra("activity");
+
+            if(str != null){
+                folder = str;
+                Log.i("onReceive", str);
+            }
+
+            Log.i("MainActivity", "onReceive");
+        }
     }
 
     @Override
@@ -254,6 +294,13 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(_serviceIntent);
+        unregisterReceiver(_receiver);
+    }
+
     private void checkLoginWithFacebook(){
         Profile user = Profile.getCurrentProfile();
         if(user != null){
@@ -281,7 +328,7 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    public void playerStart( final String path, final Song currentSong) {
+    public void playerStart(final String path, final Song currentSong, final int value) {
 
         handler = new Handler();
         seekbar = (SeekBar) findViewById(R.id.seekbar);
@@ -332,8 +379,14 @@ public class MainActivity extends AppCompatActivity
                     public void onClick(View v) {
                         if(mediaPlayer.isPlaying()){
                             mediaPlayer.stop();
-                            MyMusic myMusic = new MyMusic();
-                            myMusic.getNext(currentSong);
+                            if(value == 0){
+                                MyMusic myMusic = new MyMusic();
+                                myMusic.getNext(currentSong);
+                            }
+                            else{
+                                PlayList playList = new PlayList();
+                                playList.getNext(currentSong);
+                            }
                             Toast.makeText(getApplicationContext(),"Next", Toast.LENGTH_SHORT).show();
                         }
 
@@ -345,8 +398,14 @@ public class MainActivity extends AppCompatActivity
                     public void onClick(View v) {
                         if(mediaPlayer.isPlaying()){
                             mediaPlayer.stop();
-                            MyMusic myMusic = new MyMusic();
-                            myMusic.getPrevious(currentSong);
+                            if(value == 0){
+                                MyMusic myMusic = new MyMusic();
+                                myMusic.getPrevious(currentSong);
+                            }
+                            else{
+                                PlayList playList = new PlayList();
+                                playList.getPrevious(currentSong);
+                            }
                             Toast.makeText(getApplicationContext(),"Previous", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -367,8 +426,28 @@ public class MainActivity extends AppCompatActivity
                 }
                 Log.i("LOG", progress + " " + currentSong.getDuration());
                 if(progress >= currentSong.getDuration()){
-                    MyMusic myMusic = new MyMusic();
-                    myMusic.getNext(currentSong);
+                    if(folder != null && previousfolder != folder){
+                        PlayList playList = new PlayList();
+                        Bundle bundle = new Bundle();
+                        bundle.putString("folder", folder);
+                        playList.setArguments(bundle);
+                        FragmentManager manager = getSupportFragmentManager();
+                        manager.beginTransaction().replace(
+                                R.id.layoutCM,
+                                playList,
+                                playList.getTag()).commit();
+
+                        previousfolder = folder;
+                    }
+                    else if(folder != null && previousfolder == folder){
+                        PlayList playList = new PlayList();
+                        playList.getNext(currentSong);
+                    }
+                    else{
+                        MyMusic myMusic = new MyMusic();
+                        myMusic.getNext(currentSong);
+                    }
+
                 }
             }
 

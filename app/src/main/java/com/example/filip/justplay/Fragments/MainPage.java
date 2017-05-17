@@ -69,14 +69,15 @@ public class MainPage extends Fragment {
     }
 
     private void setView(String folder){
+
+        PlayList playList = new PlayList();
         Bundle bundle = new Bundle();
         bundle.putString("folder", folder);
-
-        MyMusic myMusic = new MyMusic();
+        playList.setArguments(bundle);
         FragmentManager manager = getActivity().getSupportFragmentManager();
         manager.beginTransaction().replace(
                 R.id.layoutCM,
-                myMusic,
-                myMusic.getTag()).commit();
+                playList,
+                playList.getTag()).commit();
     }
 }
